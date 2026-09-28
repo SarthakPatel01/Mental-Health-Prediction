@@ -15,9 +15,15 @@
 
 <header class="site-header">
   <div class="header-inner">
-    <span class="eyebrow">Student Wellness Analytics</span>
+    <span class="eyebrow">Student wellness analytics</span>
     <h1 class="title">Mental Health <em>Signal</em></h1>
     <p class="subtitle">A quick read on how habits, screen time, and stress are trending — modeled from your daily rhythm, not a diagnosis.</p>
+
+    <ol class="how-it-works" aria-label="How it works">
+      <li><span class="how-num">1</span> Share your daily habits</li>
+      <li><span class="how-num">2</span> The model reads your signal</li>
+      <li><span class="how-num">3</span> Get a score from 0 to 10</li>
+    </ol>
   </div>
 </header>
 
@@ -25,10 +31,20 @@
 
   <!-- FORM PANEL -->
   <section class="panel form-panel" aria-labelledby="form-heading">
+    <div class="progress-wrap">
+      <div class="progress-head">
+        <span class="progress-title" id="form-heading">Your details</span>
+        <span class="progress-count" id="progress-count">0 of 12 completed</span>
+      </div>
+      <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="progress-track">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+    </div>
+
     <form id="predict-form" novalidate>
 
       <fieldset class="group">
-        <legend><span class="legend-index">01</span> Profile</legend>
+        <legend><span class="legend-index">1</span> Profile</legend>
         <div class="grid grid-3">
           <div class="field">
             <label for="age">Age</label>
@@ -66,7 +82,7 @@
       </fieldset>
 
       <fieldset class="group">
-        <legend><span class="legend-index">02</span> Academic &amp; Digital Habits</legend>
+        <legend><span class="legend-index">2</span> Academic &amp; digital habits</legend>
         <div class="grid grid-2">
           <div class="field">
             <label for="academic_level">Academic level</label>
@@ -125,7 +141,7 @@
       </fieldset>
 
       <fieldset class="group">
-        <legend><span class="legend-index">03</span> Lifestyle &amp; Stress</legend>
+        <legend><span class="legend-index">3</span> Lifestyle &amp; stress</legend>
         <div class="grid grid-3">
           <div class="field">
             <label for="study_hours">Study hours / day</label>
@@ -152,8 +168,8 @@
             <span class="error-msg" data-for="sleep_hours_per_night"></span>
           </div>
           <div class="field field-span">
-            <label for="stress_level">Perceived stress level</label>
-            <div class="segmented" id="stress_level_group" data-name="stress_level">
+            <label id="stress-label">Perceived stress level</label>
+            <div class="segmented" id="stress_level_group" data-name="stress_level" role="group" aria-labelledby="stress-label">
               <button type="button" class="seg-btn" data-value="Low">Low</button>
               <button type="button" class="seg-btn" data-value="Medium">Medium</button>
               <button type="button" class="seg-btn" data-value="High">High</button>
@@ -178,23 +194,35 @@
   <aside class="panel result-panel" aria-live="polite">
     <div class="result-inner" id="result-inner">
 
+      <!-- IDLE -->
       <div class="state state-idle" id="state-idle">
-        <svg class="gauge gauge-idle" viewBox="0 0 240 160" aria-hidden="true">
+        <svg class="gauge" viewBox="0 0 240 160" aria-hidden="true">
           <path class="gauge-track" d="M 30 140 A 100 100 0 0 1 210 140" />
           <g class="gauge-ticks"></g>
         </svg>
-        <p class="idle-label">Your score will appear here</p>
-        <p class="idle-copy">Fill in the form and submit to generate a predicted mental health score from 0–10.</p>
+        <p class="panel-label">Your score will appear here</p>
+        <p class="panel-copy">Fill in the form and press <strong>Read my signal</strong> to generate a predicted mental health score from 0 to 10.</p>
       </div>
 
+      <!-- LOADING (visible only while the request is running) -->
       <div class="state state-loading" id="state-loading" hidden>
-        <div class="pulse-ring"></div>
-        <p class="loading-label">Reading the signal…</p>
-        <p class="loading-copy">Running your habits through the model.</p>
+        <svg class="gauge gauge-scan" viewBox="0 0 240 160" aria-hidden="true">
+          <path class="gauge-track" d="M 30 140 A 100 100 0 0 1 210 140" />
+          <path class="gauge-sweep" d="M 30 140 A 100 100 0 0 1 210 140" />
+          <g class="gauge-ticks"></g>
+          <g class="scan-needle">
+            <line x1="120" y1="140" x2="42" y2="140" />
+          </g>
+          <circle class="gauge-needle-hub" cx="120" cy="140" r="5" />
+        </svg>
+        <p class="panel-label" id="loading-label">Reading the signal…</p>
+        <p class="panel-copy" id="loading-copy">Running your habits through the model.</p>
+        <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
       </div>
 
+      <!-- RESULT -->
       <div class="state state-result" id="state-result" hidden>
-        <svg class="gauge gauge-result" viewBox="0 0 240 160" aria-hidden="true">
+        <svg class="gauge" viewBox="0 0 240 160" aria-hidden="true">
           <defs>
             <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#D9534F"/>
@@ -205,21 +233,31 @@
           <path class="gauge-track" d="M 30 140 A 100 100 0 0 1 210 140" />
           <path class="gauge-fill" id="gauge-fill" d="M 30 140 A 100 100 0 0 1 210 140" />
           <g class="gauge-ticks"></g>
+          <g id="gauge-needle" transform="rotate(0 120 140)">
+            <line class="needle-line" x1="120" y1="140" x2="46" y2="140" />
+          </g>
           <circle class="gauge-needle-hub" cx="120" cy="140" r="5" />
         </svg>
         <div class="score-readout">
-          <span class="score-number" id="score-number">0.0</span>
+          <span class="score-number" id="score-number">0.00</span>
           <span class="score-max">/10</span>
         </div>
         <p class="score-band" id="score-band">—</p>
         <p class="score-context" id="score-context"></p>
+
+        <div class="insights" id="insights-wrap">
+          <p class="insights-title">What shaped this read</p>
+          <ul class="insights-list" id="insights-list"></ul>
+        </div>
+
         <button type="button" class="reset-btn" id="reset-btn">Run another read</button>
       </div>
 
+      <!-- ERROR (no icon, no retry button — just press "Read my signal" again) -->
       <div class="state state-error" id="state-error" hidden>
-        <div class="error-icon" aria-hidden="true">!</div>
+        <p class="error-label" id="error-label">Something went wrong</p>
         <p class="error-copy" id="error-copy"></p>
-        <button type="button" class="reset-btn" id="error-retry-btn">Try again</button>
+        <p class="error-hint">Update your answers if needed, then press <strong>Read my signal</strong> again.</p>
       </div>
 
     </div>
